@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    name: Code Quality Checks
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check for common issues
+      run: |
+        echo "🔍 Running basic quality checks..."
+        
+        # Check for TODO/FIXME comments
+        echo "Checking for TODO/FIXME comments..."
+        if grep -r -i "TODO\|FIXME" --include="*.md" --include="*.yml" --include="*.yaml" --include="*.js" --include="*.py" .; then
+          echo "⚠️  Found TODO/FIXME comments - consider addressing them"
+        else
+          echo "✅ No TODO/FIXME comments found"
+        fi
+        
+        # Check for large files
+        echo "Checking for large files..."
+        find . -type f -size +1M -not -path "./.git/*" | while read file; do
+          echo "⚠️  Large file detected: $file"
+        done
+        
+        # Check for sensitive patterns
+        echo "Checking for potential sensitive data..."
+        if grep -r -i "password\|secret\|key\|token" --include="*.md" --include="*.yml" --include="*.yaml" --include="*.js" --include="*.py" . | grep -v "example\|placeholder\|GITHUB_TOKEN\|github.token"; then
+          echo "⚠️  Potential sensitive data found - please review"
+          exit 1
+        else
+          echo "✅ No obvious sensitive data patterns found"
+        fi
+        
+        echo "✅ Quality checks completed successfully!"
+
+  markdown-lint:
+    runs-on: ubuntu-latest
+    name: Markdown Linting
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install markdownlint-cli
+      run: npm install -g markdownlint-cli
+      
+    - name: Lint Markdown files
+      run: markdownlint --ignore node_modules --ignore .git '**/*.md'
+
+  validate-workflows:
+    runs-on: ubuntu-latest
+    name: Validate GitHub Actions Workflows
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate workflow syntax
+      run: |
+        echo "🔍 Validating GitHub Actions workflows..."
+        
+        # Check for workflow files
+        if [ -d ".github/workflows" ]; then
+          for workflow in .github/workflows/*.yml .github/workflows/*.yaml; do
+            if [ -f "$workflow" ]; then
+              echo "Validating $workflow..."
+              # Basic YAML syntax validation
+              if command -v yamllint > /dev/null 2>&1; then
+                yamllint "$workflow"
+              else
+                echo "yamllint not available, skipping detailed validation"
+              fi
+            fi
+          done
+          echo "✅ Workflow validation completed!"
+        else
+          echo "No workflows directory found"
+        fi

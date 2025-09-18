@@ -1,0 +1,31 @@
+{
+  "name": "skills-hello-github-actions2025",
+  "version": "1.0.0",
+  "description": "A learning repository for mastering GitHub Actions fundamentals",
+  "main": "src/hello.js",
+  "scripts": {
+    "start": "node src/hello.js",
+    "test": "echo \"No tests specified yet\" && exit 0",
+    "lint": "echo \"Linting with basic checks...\" && node -c src/hello.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heimarvegaeci/skills-hello-github-actions2025.git"
+  },
+  "keywords": [
+    "github-actions",
+    "ci-cd",
+    "automation",
+    "learning",
+    "devops"
+  ],
+  "author": "GitHub Actions Learning",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/heimarvegaeci/skills-hello-github-actions2025/issues"
+  },
+  "homepage": "https://github.com/heimarvegaeci/skills-hello-github-actions2025#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
